@@ -5,11 +5,11 @@ from rgbmatrix import RGBMatrix
 
 rows = 16
 cols = 32
-chains = 1
+chains = 3
 parallel = 3
 width = cols * chains
 height = rows * parallel
-size = (height, width)
+size = (width, height)
 xs = range(width)
 ys = range(height)
 
@@ -23,7 +23,6 @@ pygame.mixer.music.load(musicname)
 pygame.mixer.music.play()
 
 try:
-    buf = [[(0, 0, 0) for y in ys] for x in xs]
     while(cap.isOpened()):
         ret, frame = cap.read()
         pos = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
@@ -32,16 +31,13 @@ try:
         else:
             pygame.mixer.music.pause()
         if ret:
-            #frame = cv2.resize(frame, size)
-            for x in xs:
-                cols = frame[x]
-                buf_cols = buf[x]
-                for y in ys:
-                    b, g, r = cols[y]
-                    buf_b, buf_g, buf_r = buf_cols[y]
-                    if b != buf_b or g != buf_g or r != buf_r:
-                        matrix.SetPixel(x, y, r, g, b)
-            buf = frame
+            frame = cv2.resize(frame, size)
+            canvas = matrix.CreateFrameCanvas()
+            for y, cols in enumerate(frame):
+                for x, col in enumerate(cols):
+                    b, g, r = col
+                    canvas.SetPixel(x, y, r, g, b)
+            matrix.SwapOnVSync(canvas)
 finally:
     cap.release()
     matrix.Clear()
