@@ -1,9 +1,13 @@
 import pygame
+from pygame.locals import *
 import random
 import threading
 import matrix
 
 BLACK = (0, 0, 0)
+
+WIDTH = 16
+HEIGHT = 32
 
 class Block:
 
@@ -17,9 +21,7 @@ class Block:
                 return ((self.x + x, self.y + y) for x, y in self.shape)
 
         def check(self, display):
-                height = len(display)
-                width = len(display[0])
-                return any(y >= height or x >= width or x < 0 or y >= 0 and display[y][x] != BLACK for x, y in self.points())
+                return any(y >= HEIGHT or x >= WIDTH or x < 0 or y >= 0 and display[y][x] != BLACK for x, y in self.points())
 
         def move(self, x, y):
                 return Block(self.shape, self.color, self.x + x, self.y + y)
@@ -29,11 +31,9 @@ class Block:
                 return Block(shape, self.color, self.x, self.y)
 
         def fix(self, display):
-                height = len(display)
-                width = len(display[0])
                 display = [list(line) for line in display]
                 for x, y in self.points():
-                        if y >= 0 and x >= 0 and y < height and x < width:
+                        if y >= 0 and x >= 0 and y < HEIGHT and x < WIDTH:
                                 display[y][x] = self.color
                 return display
 
@@ -55,34 +55,33 @@ def newblock(x, y):
         return Block(shape, color, x, y)
 
 def show(display):
-        print(chr(27) + "[2J")
-        for line in display:
-                print("".join('*' if dot else ' ' for dot in line))
-
-def show(display):
 	canvas = matrix.matrix.CreateFrameCanvas()
 	for x, line in enumerate(display):
 		for y, pixel in enumerate(line):
-			for i in range(2):
-				for j in range(2):
+			for i in range(matrix.height / WIDTH):
+				for j in range(matrix.width / HEIGHT):
 					if pixel != BLACK:
  						r, g, b = pixel
-						canvas.SetPixel(x * 2 + i, y * 2 + j, r, g, b)
-	matrix.matrix.SwapOnVSync(canvas)	
+						canvas.SetPixel(x * matrix.height / WIDTH + i, y * matrix.width / HEIGHT + j, r, g, b)
+	matrix.matrix.SwapOnVSync(canvas)
 
 def main():
-        width = 8
-        height = 16
+        pygame.init()
         current = None
-        display = ((BLACK,) * width,) * height
+        display = ((BLACK,) * WIDTH,) * HEIGHT
         clock = pygame.time.Clock()
         counter = 0
         while True:
 		clock.tick(30)
                 if current == None:
-                        current = newblock(width / 2, 0)
+                        current = newblock(WIDTH / 2, 0)
                         if current.check(display):
                                 break
+                keys = pygame.key.get_pressed()
+                if keys[K_LEFT]:
+                    current = current.move(-1, 0)
+                if keys[K_RIGHT]:
+                    current = current.move(1, 0)
                 if counter < 10:
                         counter += 1
                 else:
@@ -97,3 +96,4 @@ def main():
 
 if __name__ == '__main__':
         main()
+
