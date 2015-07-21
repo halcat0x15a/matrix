@@ -10,8 +10,6 @@ parallel = 3
 width = cols * chains
 height = rows * parallel
 size = (width, height)
-xs = range(width)
-ys = range(height)
 
 matrix = RGBMatrix(rows, chains, parallel)
 matrix.brightness = 20
@@ -23,7 +21,8 @@ pygame.mixer.music.load(musicname)
 pygame.mixer.music.play()
 
 try:
-    while(cap.isOpened()):
+    canvas = matrix.CreateFrameCanvas()
+    while cap.isOpened():
         ret, frame = cap.read()
         pos = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
         if pos > pygame.mixer.music.get_pos():
@@ -32,12 +31,11 @@ try:
             pygame.mixer.music.pause()
         if ret:
             frame = cv2.resize(frame, size)
-            canvas = matrix.CreateFrameCanvas()
-            for y, cols in enumerate(frame):
-                for x, col in enumerate(cols):
+            for y, row in enumerate(frame):
+                for x, col in enumerate(row):
                     b, g, r = col
                     canvas.SetPixel(x, y, r, g, b)
-            matrix.SwapOnVSync(canvas)
+            canvas = matrix.SwapOnVSync(canvas)
 finally:
     cap.release()
     matrix.Clear()
