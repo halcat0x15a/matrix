@@ -1,8 +1,8 @@
 import pygame
-from pygame.locals import *
 import random
 import threading
 import matrix
+import js
 
 BLACK = (0, 0, 0)
 
@@ -65,35 +65,51 @@ def show(display):
 						canvas.SetPixel(x * matrix.height / WIDTH + i, y * matrix.width / HEIGHT + j, r, g, b)
 	matrix.matrix.SwapOnVSync(canvas)
 
+def clear(display):
+	bottom = tuple(line for line in display if not all(pixel != BLACK for pixel in line))
+	top = ((BLACK,) * WIDTH,) * (HEIGHT - len(bottom))
+	return top + bottom
+
 def main():
-        pygame.init()
         current = None
         display = ((BLACK,) * WIDTH,) * HEIGHT
         clock = pygame.time.Clock()
         counter = 0
+	(process, queue) = js.queue()
+	process.start()
         while True:
 		clock.tick(30)
                 if current == None:
                         current = newblock(WIDTH / 2, 0)
                         if current.check(display):
                                 break
-                keys = pygame.key.get_pressed()
-                if keys[K_LEFT]:
-                    current = current.move(-1, 0)
-                if keys[K_RIGHT]:
-                    current = current.move(1, 0)
+		while not queue.empty():
+			(pressed, button) = queue.get()
+			if pressed:
+				if button == '05' and not current.move(-1, 0).check(display):
+					current = current.move(-1, 0)
+				elif button == '07' and not current.move(1, 0).check(display):
+					current = current.move(1, 0)
+				elif button == '06' and not current.move(0, 1).check(display):
+					current = current.move(0, 1)
+				elif button == '0D' and not current.turn(1).check(display):
+					current = current.turn(1)
+				elif button == '0E' and not current.turn(-1).check(display):
+					current = current.turn(-1)
                 if counter < 10:
                         counter += 1
                 else:
                         if current.move(0, 1).check(display):
-                                display = current.fix(display)
+                                display = clear(current.fix(display))
                                 current = None
-                                show(display)
                         else:
                                 current = current.move(0, 1)
-                                show(current.fix(display))
                         counter = 0
+		if current:
+                	show(current.fix(display))
+		else:
+			show(display)
 
 if __name__ == '__main__':
-        main()
+       main()
 
