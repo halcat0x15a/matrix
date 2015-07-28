@@ -107,15 +107,15 @@ class Tetris:
                 while not self.queue.empty():
                         (pressed, button) = self.queue.get()
                         self.buttons[button] = pressed
-                if self.buttons['07' if pos else '05'] and not self.current.move(-1, 0).check(self.display):
+                if self.buttons['07' if self.pos else '05'] and not self.current.move(-1, 0).check(self.display):
                         self.current = self.current.move(-1, 0)
-                if self.buttons['05' if pos else '07'] and not self.current.move(1, 0).check(self.display):
+                if self.buttons['05' if self.pos else '07'] and not self.current.move(1, 0).check(self.display):
                         self.current = self.current.move(1, 0)
-                if self.buttons['06'] and not self.current.move(0, 1).check(display):
+                if self.buttons['06'] and not self.current.move(0, 1).check(self.display):
                         self.current = self.current.move(0, 1)
-                if self.buttons['0D'] and not self.current.turn(1).check(display):
+                if self.buttons['0D'] and not self.current.turn(1).check(self.display):
                         self.current = self.current.turn(1)
-                if self.buttons['0E'] and not self.current.turn(-1).check(display):
+                if self.buttons['0E'] and not self.current.turn(-1).check(self.display):
                         self.current = self.current.turn(-1)
                 if self.counter < LEVEL - self.score / 4:
                         self.counter += 1
@@ -143,12 +143,13 @@ if __name__ == '__main__':
 	js1.start()
         canvas = matrix.matrix.CreateFrameCanvas()
         clock = pygame.time.Clock()
-	while True:
+	playing = True
+	while playing:
                 clock.tick(10)
-		a.run()
-		b.run()
+		playing = a.run() and b.run()
 		canvas.Clear()
 		canvas = a.show(canvas)
-		canvas = b.show(canavs)
+		canvas = b.show(canvas)
 		canvas = matrix.matrix.SwapOnVSync(canvas)
+		
 
