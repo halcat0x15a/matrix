@@ -8,6 +8,7 @@ BLACK = (0, 0, 0)
 
 WIDTH = 16
 HEIGHT = 32
+LEVEL = 10
 
 class Block:
 
@@ -67,20 +68,22 @@ def show(display):
 
 def clear(display):
         bottom = tuple(line for line in display if not all(pixel != BLACK for pixel in line))
-        top = ((BLACK,) * WIDTH,) * (HEIGHT - len(bottom))
-        return top + bottom
+        n = HEIGHT - len(bottom)
+        top = ((BLACK,) * WIDTH,) * n
+        return (top + bottom, n)
 
 def main():
         current = None
         display = ((BLACK,) * WIDTH,) * HEIGHT
         clock = pygame.time.Clock()
+        score = 0
         counter = 0
         (process, queue) = joystick.queue()
         process.start()
         buttons = {'05':False,'07':False,'06':False,'0D':False,'0E':False}
         while True:
                 clock.tick(30)
-                if current == None:
+                if not current:
                         current = newblock(WIDTH / 2, 0)
                         if current.check(display):
                                 break
@@ -97,11 +100,12 @@ def main():
                         current = current.turn(1)
                 elif buttons['0E'] and not current.turn(-1).check(display):
                         current = current.turn(-1)
-                if counter < 10:
+                if counter < LEVEL - score / 4:
                         counter += 1
                 else:
                         if current.move(0, 1).check(display):
-                                display = clear(current.fix(display))
+                                (display, n) = clear(current.fix(display))
+                                score += n
                                 current = None
                         else:
                                 current = current.move(0, 1)
