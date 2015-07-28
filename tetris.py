@@ -79,10 +79,11 @@ def main():
         score = 0
         counter = 0
         (process, queue) = joystick.queue()
+	process.daemon = True
         process.start()
         buttons = {'05':False,'07':False,'06':False,'0D':False,'0E':False}
         while True:
-                clock.tick(30)
+                clock.tick(10)
                 if not current:
                         current = newblock(WIDTH / 2, 0)
                         if current.check(display):
