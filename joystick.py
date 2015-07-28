@@ -1,7 +1,7 @@
 import multiprocessing
 
-def poll(f):
-	with open('/dev/input/js0', 'r') as js:
+def poll(f, file):
+	with open(file, 'r') as js:
 		data = []
 		while True:
 			for c in js.read(1):
@@ -11,8 +11,8 @@ def poll(f):
 						f(data[4] == '01', data[7])
 					data = []
 
-def queue():
+def queue(file):
 	q = multiprocessing.Queue()
 	f = lambda x, y: q.put((x, y))
-	p = multiprocessing.Process(target=poll, args=(f,))
+	p = multiprocessing.Process(target=poll, args=(f, file))
 	return (p, q)
