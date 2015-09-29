@@ -9,4 +9,3 @@ height = rows * parallel
 size = (width, height)
 
 matrix = RGBMatrix(rows, chains, parallel)
-

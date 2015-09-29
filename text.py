@@ -3,7 +3,7 @@
 import pygame
 from pygame.locals import *
 import sys
-import matrix
+from matrix import *
 
 pygame.init()
  
@@ -13,10 +13,12 @@ def draw(text):
     text = font.render(unicode(text), True, (0, 0, 0))
     resized = pygame.transform.scale(text, (matrix.width, matrix.height))
     pixel = pygame.PixelArray(resized)
+    canvas = matrix.CreateFrameCanvas()
     for x, row in enumerate(pixel):
         for y, value in enumerate(row):
             color = pygame.Color(value)
-            matrix.matrix.SetPixel(x, y, color.r, color.g, color.b)
+            canvas.SetPixel(x, y, color.r, color.g, color.b)
+    return matrix.SwapOnVSync(canvas)
 
 while True:
     draw(sys.stdin.readline().decode('utf-8')[:-1])
