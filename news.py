@@ -2,6 +2,7 @@
 
 import sys
 from subprocess import call
+import threading
 import feedparser
 import pygame
 from pygame.locals import *
@@ -35,7 +36,9 @@ if __name__ == '__main__':
     while True:
         for entry in feedparser.parse(yahoo)['entries']:
             text = entry.title
-            call(["./jsay", text])
+            jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
+            jtalk.setDaemon(True)
+            jtalk.start()
             for canvas in draw(matrix, text):
                 matrix.vsync(canvas)
                 time.sleep(0.05)

@@ -1,0 +1,6 @@
+#!/bin/sh
+TMP=/tmp/jsay.wav
+cd /usr/local/Cellar/open-jtalk/1.08/
+echo "$1" | open_jtalk -r 0.5 -x dic -m voice/mei/mei_normal.htsvoice -ow $TMP
+afplay $TMP
+rm -f $TMP
