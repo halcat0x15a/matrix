@@ -17,15 +17,15 @@ class Matrix:
         return ROWS * self.parallel
 
     def create_canvas(self):
-        return self.matrix.CreateFrameCanvas()
+        return Canvas(self.matrix.CreateFrameCanvas())
 
     def vsync(self, canvas):
-        self.matrix.SwapOnVSync(canvas)
+        self.matrix.SwapOnVSync(canvas.canvas)
 
 class Canvas:
 
     def __init__(self, canvas):
-        self.canavs = canvas
+        self.canvas = canvas
 
-    def set_pixel(self, x, y, color):
-        self.canvas.SetPixel(x, y, color.r, color.g, color.b)
+    def set_pixel(self, x, y, r, g, b):
+        self.canvas.SetPixel(x, y, r, g, b)

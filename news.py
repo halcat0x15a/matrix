@@ -11,6 +11,7 @@ from debug import Matrix
 import time
 
 yahoo = 'http://rss.dailynews.yahoo.co.jp/fc/domestic/rss.xml'
+niconico = 'http://news.nicovideo.jp/topiclist?rss=2.0'
 
 pygame.init()
  
@@ -28,18 +29,20 @@ def draw(matrix, text):
             for x in range(matrix.width()):
                 value = pixel[x + n][y]
                 if value > 0:
-                    canvas.set_pixel(x, y, pygame.Color(value))
+                    color = pygame.Color(value)
+                    canvas.set_pixel(x, y, color[1], color[2], color[3])
         yield canvas
 
 if __name__ == '__main__':
     matrix = Matrix(1, 1)
     while True:
-        for entry in feedparser.parse(yahoo)['entries']:
-            text = entry.title
-            jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
-            jtalk.setDaemon(True)
-            jtalk.start()
-            for canvas in draw(matrix, text):
-                matrix.vsync(canvas)
-                time.sleep(0.05)
-            time.sleep(1)
+        for news in [yahoo, niconico]:
+            for entry in feedparser.parse(news)['entries']:
+                text = entry.title
+                jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
+                jtalk.setDaemon(True)
+                jtalk.start()
+                for canvas in draw(matrix, text):
+                    matrix.vsync(canvas)
+                    time.sleep(0.05)
+                time.sleep(1)

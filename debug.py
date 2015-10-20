@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 ROWS = 16
 COLS = 32
 
@@ -26,11 +28,26 @@ class Canvas:
         self.height = height
         self.canvas = [[' '] * width for _ in range(height)]
 
-    def set_pixel(self, x, y, color):
-        self.canvas[y][x] = '*'
-        self.vsync()
+    def set_pixel(self, x, y, r, g, b):
+        if r > 192 and g > 192 and b > 192:
+            suffix = '\033[37m'
+        elif r > 192 and g > 192:
+            suffix = '\033[33m'
+        elif g > 192 and b > 192:
+            suffix = '\033[36m'
+        elif r > 192 and b > 192:
+            suffix = '\033[35m'
+        elif r > 192:
+            suffix = '\033[31m'
+        elif g > 192:
+            suffix = '\033[32m'
+        elif b > 192:
+            suffix = '\033[34m'
+        else:
+            suffix = '\033[30m'
+        self.canvas[y][x] = '#' + suffix
 
     def vsync(self):
-        print(chr(27) + "[2J")
+        print(chr(27) + '[2J')
         for y in range(self.height):
-            print ''.join(self.canvas[y])
+            print(''.join(self.canvas[y]))
