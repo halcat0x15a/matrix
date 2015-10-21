@@ -4,45 +4,45 @@ import sys
 from subprocess import call
 import threading
 import feedparser
-import pygame
 from pygame.locals import *
-#from matrix import Matrix
-from debug import Matrix
+from matrix import Matrix
+#from debug import Matrix
 import time
+from PIL import Image, ImageDraw, ImageFont
 
 yahoo = 'http://rss.dailynews.yahoo.co.jp/fc/domestic/rss.xml'
 niconico = 'http://news.nicovideo.jp/topiclist?rss=2.0'
 
-pygame.init()
- 
-font = pygame.font.Font("ipag.ttf", 80)
+fontsize = 80
+font = ImageFont.truetype("ipag.ttf", fontsize)
 
 def draw(matrix, text):
     text = unicode(text)
-    image = font.render(text, True, (0, 0, 0))
+    image = Image.new("RGBA", (len(text) * fontsize, fontsize), (0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.text((0, 0), text, (255, 255, 255), font=font)
     width = matrix.height() * len(text)
-    resized = pygame.transform.scale(image, (width, matrix.height()))
-    pixel = pygame.PixelArray(resized)
+    resized = image.resize((width, matrix.height()), Image.ANTIALIAS)
+    resized.save('sample.png', 'PNG')
+    canvas = matrix.create_canvas()
     for n in range(width - matrix.width()):
-        canvas = matrix.create_canvas()
         for y in range(matrix.height()):
             for x in range(matrix.width()):
-                value = pixel[x + n][y]
-                if value > 0:
-                    color = pygame.Color(value)
-                    canvas.set_pixel(x, y, color[1], color[2], color[3])
+                r, g, b, a = resized.getpixel((x + n, y))
+                canvas.set_pixel(x, y, r, g, b)
         yield canvas
 
 if __name__ == '__main__':
     matrix = Matrix(1, 1)
-    while True:
-        for news in [yahoo, niconico]:
-            for entry in feedparser.parse(news)['entries']:
-                text = entry.title
-                jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
-                jtalk.setDaemon(True)
-                jtalk.start()
-                for canvas in draw(matrix, text):
-                    matrix.vsync(canvas)
-                    time.sleep(0.05)
-                time.sleep(1)
+    for news in [yahoo, niconico]:
+        entries = feedparser.parse(news)['entries']
+        for entry in entries:
+            text = entry.title
+            print(text)
+            #jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
+            #jtalk.setDaemon(True)
+            #jtalk.start()
+            for canvas in draw(matrix, text):
+                 matrix.vsync(canvas)
+                 time.sleep(0.1)
+            time.sleep(1)
