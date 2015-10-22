@@ -1,4 +1,3 @@
-import pygame
 import functools
 import random
 import multiprocessing
@@ -70,6 +69,15 @@ def show_horizontal(matrix, canvas, display, width, height):
                         canvas.SetPixel(x * matrix.height() / width + i, y * matrix.width() / height + j, r, g, b)
     return canvas
 
+def show_naive(matrix, canvas, display, width, height):
+    for x, line in enumerate(display):
+        for y, pixel in enumerate(line):
+            if pixel != BLACK:
+                r, g, b = pixel
+                for i in range(2):
+                    for j in range(2):
+                        canvas.SetPixel(x * matrix.height() / width + i, y * matrix.width() / height + j, r, g, b)
+ 
 def show_vertical(pos, matrix, canvas, display, width, height):
     for y, line in enumerate(display):
         for x, pixel in enumerate(line):
@@ -103,31 +111,31 @@ class Tetris:
         playing = True
         if not self.current:
             self.current = newblock(self.width, self.height, self.width / 2, 0)
-            if self.current.check(self.display):
-                playing = False
-            while not self.queue.empty():
-                (pressed, button) = self.queue.get()
-                self.buttons[button] = pressed
-                if self.buttons['07' if self.pos else '05'] and not self.current.move(-1, 0).check(self.display):
-                    self.current = self.current.move(-1, 0)
-                if self.buttons['05' if self.pos else '07'] and not self.current.move(1, 0).check(self.display):
-                    self.current = self.current.move(1, 0)
-                if self.buttons['06'] and not self.current.move(0, 1).check(self.display):
-                    self.current = self.current.move(0, 1)
-                if self.buttons['0D'] and not self.current.turn(1).check(self.display):
-                    self.current = self.current.turn(1)
-                if self.buttons['0E'] and not self.current.turn(-1).check(self.display):
-                    self.current = self.current.turn(-1)
-                if self.counter < LEVEL - self.score / 4:
-                    self.counter += 1
-                else:
-                    if self.current.move(0, 1).check(self.display):
-                        (self.display, n) = clear(self.current.fix(self.display), self.width, self.height)
-                        self.score += n
-                        self.current = None
-                    else:
-                        self.current = self.current.move(0, 1)
-                    self.counter = 0
+        if self.current.check(self.display):
+            playing = False
+        while not self.queue.empty():
+            (pressed, button) = self.queue.get()
+            self.buttons[button] = pressed
+            if self.buttons['07' if self.pos else '05'] and not self.current.move(-1, 0).check(self.display):
+                self.current = self.current.move(-1, 0)
+            if self.buttons['05' if self.pos else '07'] and not self.current.move(1, 0).check(self.display):
+                self.current = self.current.move(1, 0)
+            if self.buttons['06'] and not self.current.move(0, 1).check(self.display):
+                self.current = self.current.move(0, 1)
+            if self.buttons['0D'] and not self.current.turn(1).check(self.display):
+                self.current = self.current.turn(1)
+            if self.buttons['0E'] and not self.current.turn(-1).check(self.display):
+                self.current = self.current.turn(-1)
+        if self.counter < LEVEL - self.score / 4:
+            self.counter += 1
+        else:
+            if self.current.move(0, 1).check(self.display):
+                (self.display, n) = clear(self.current.fix(self.display), self.width, self.height)
+                self.score += n
+                self.current = None
+            else:
+                self.current = self.current.move(0, 1)
+            self.counter = 0
         return playing
 
     def show(self, matrix, canvas):
@@ -156,14 +164,15 @@ if __name__ == '__main__' and False:
 if __name__ == '__main__':
     (js, queue) = joystick.queue('/dev/input/js0')
     js.daemon = True
-    tetris = Tetris(1, queue)
+    tetris = Tetris(0, queue)
     js.start()
     matrix = Matrix(1, 1)
     canvas = matrix.matrix.CreateFrameCanvas()
     playing = True
     while playing:
-        time.sleep(1 / 30)
+        time.sleep(1 / 20)
         playing = tetris.run()
+        print playing
         tetris.show(matrix, canvas)
         matrix.matrix.SwapOnVSync(canvas)
         canvas = matrix.matrix.CreateFrameCanvas()
