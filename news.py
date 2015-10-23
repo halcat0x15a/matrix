@@ -5,8 +5,9 @@ from subprocess import call
 import threading
 import feedparser
 from pygame.locals import *
-from matrix import Matrix
+#from matrix import Matrix
 #from debug import Matrix
+from image import Matrix
 import time
 from PIL import Image, ImageDraw, ImageFont
 
