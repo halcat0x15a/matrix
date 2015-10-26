@@ -39,7 +39,6 @@ if __name__ == '__main__':
         entries = feedparser.parse(news)['entries']
         for entry in entries:
             text = entry.title
-            print(text)
             #jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
             #jtalk.setDaemon(True)
             #jtalk.start()

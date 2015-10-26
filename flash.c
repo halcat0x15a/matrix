@@ -30,18 +30,20 @@ int main() {
     if (!io.Init()) return 1;
     matrix = new RGBMatrix(&io, rows, chains, parallel);
     matrix->set_luminance_correct(true);
-    matrix->SetBrightness(100);
-    matrix->SetPWMBits(10);
+    matrix->SetBrightness(80);
+    matrix->SetPWMBits(11);
     for (;;) {    
-        FrameCanvas *canvas = matrix->CreateFrameCanvas();
         cv::Mat image = cv::imread("sample.png");
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                cv::Vec3b vec = image.at<cv::Vec3b>(i, j);
-                canvas->SetPixel(j, i, vec[2], vec[1], vec[0]);
+        if (image.data) { 
+            FrameCanvas *canvas = matrix->CreateFrameCanvas();
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    cv::Vec3b vec = image.at<cv::Vec3b>(i, j);
+                    canvas->SetPixel(j, i, vec[2], vec[1], vec[0]);
+                }
             }
+            matrix->SwapOnVSync(canvas);
         }
-        matrix->SwapOnVSync(canvas);
         usleep(1);
     }
     return 0;
