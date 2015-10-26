@@ -1,7 +1,8 @@
 import functools
 import random
 import multiprocessing
-from matrix import Matrix, ROWS, COLS
+#from matrix import Matrix, ROWS, COLS
+from image import Matrix, ROWS, COLS
 import joystick
 import time
 
@@ -66,17 +67,8 @@ def show_horizontal(matrix, canvas, display, width, height):
                 for j in range(matrix.width() / height):
                     if pixel != BLACK:
                         r, g, b = pixel
-                        canvas.SetPixel(x * matrix.height() / width + i, y * matrix.width() / height + j, r, g, b)
+                        canvas.set_pixel(x * matrix.height() / width + i, y * matrix.width() / height + j, r, g, b)
     return canvas
-
-def show_naive(matrix, canvas, display, width, height):
-    for x, line in enumerate(display):
-        for y, pixel in enumerate(line):
-            if pixel != BLACK:
-                r, g, b = pixel
-                for i in range(2):
-                    for j in range(2):
-                        canvas.SetPixel(x * matrix.height() / width + i, y * matrix.width() / height + j, r, g, b)
  
 def show_vertical(pos, matrix, canvas, display, width, height):
     for y, line in enumerate(display):
@@ -85,7 +77,7 @@ def show_vertical(pos, matrix, canvas, display, width, height):
                 for j in range(matrix.height() / height):
                     if pixel != BLACK:
                         r, g, b = pixel
-                        canvas.SetPixel(x * COLS / width + i + COLS * pos, y * matrix.height() / height + j, r, g, b)
+                        canvas.set_pixel(x * COLS / width + i + COLS * pos, y * matrix.height() / height + j, r, g, b)
 	return canvas
 
 def clear(display, width, height):
@@ -96,7 +88,8 @@ def clear(display, width, height):
 
 class Tetris:
 
-    def __init__(self, pos, queue):
+    def __init__(self, matrix, pos, queue):
+        self.matrix = matrix
         self.pos = pos
         self.queue = queue
         self.current = None
@@ -108,13 +101,12 @@ class Tetris:
         self.buttons = {'05':False,'07':False,'06':False,'0D':False,'0E':False}
 
     def run(self):
-        playing = True
         if not self.current:
             self.current = newblock(self.width, self.height, self.width / 2, 0)
         if self.current.check(self.display):
-            playing = False
+            return False
         while not self.queue.empty():
-            (pressed, button) = self.queue.get()
+            pressed, button = self.queue.get()
             self.buttons[button] = pressed
             if self.buttons['07' if self.pos else '05'] and not self.current.move(-1, 0).check(self.display):
                 self.current = self.current.move(-1, 0)
@@ -126,6 +118,8 @@ class Tetris:
                 self.current = self.current.turn(1)
             if self.buttons['0E'] and not self.current.turn(-1).check(self.display):
                 self.current = self.current.turn(-1)
+            if self.buttons['00']:
+                return False
         if self.counter < LEVEL - self.score / 4:
             self.counter += 1
         else:
@@ -136,11 +130,9 @@ class Tetris:
             else:
                 self.current = self.current.move(0, 1)
             self.counter = 0
-        return playing
-
-    def show(self, matrix, canvas):
         show = functools.partial(show_vertical, self.pos - 1) if self.pos else show_horizontal
-        return show(matrix, canvas, self.current.fix(self.display) if self.current else self.display, self.width, self.height)
+        self.matrix.vsync(show(self.matrix, self.matrix.create_canvas(), self.current.fix(self.display) if self.current else self.display, self.width, self.height))
+        return True
 
 if __name__ == '__main__' and False:
     (js0, queue0) = joystick.queue('/dev/input/js0')

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import sys
 from subprocess import call
 import threading
 import feedparser
-from pygame.locals import *
 #from matrix import Matrix
 #from debug import Matrix
 from image import Matrix
@@ -32,6 +30,30 @@ def draw(matrix, text):
                 r, g, b, a = resized.getpixel((x + n, y))
                 canvas.set_pixel(x, y, r, g, b)
         yield canvas
+
+class News:
+
+    def __init__(self, matrix, queue):
+        self.matrix = matrix
+        self.queue = queue
+
+    def run(self):
+        for news in [yahoo, niconico]:
+            for entry in feedparser.parse(news)['entries']:
+                text = entry.title
+                print(text)
+                jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
+                jtalk.setDaemon(True)
+                jtalk.start()
+                for canvas in draw(self.matrix, text):
+                    while not self.queue.empty():
+                        pressed, button = self.queue.get()
+                        if pressed and button == '00':
+                            return False
+                    self.matrix.vsync(canvas)
+                    time.sleep(0.1)
+                time.sleep(1)
+        return True
 
 if __name__ == '__main__':
     matrix = Matrix(1, 1)
