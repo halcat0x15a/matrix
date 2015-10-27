@@ -32,10 +32,11 @@ int main() {
     matrix->set_luminance_correct(true);
     matrix->SetBrightness(80);
     matrix->SetPWMBits(11);
+    FrameCanvas *canvas = matrix->CreateFrameCanvas();
     for (;;) {    
         cv::Mat image = cv::imread("sample.png");
         if (image.data) { 
-            FrameCanvas *canvas = matrix->CreateFrameCanvas();
+            canvas->Clear();
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     cv::Vec3b vec = image.at<cv::Vec3b>(i, j);
@@ -44,7 +45,6 @@ int main() {
             }
             matrix->SwapOnVSync(canvas);
         }
-        image.release();
         usleep(1);
     }
     return 0;
