@@ -13,11 +13,12 @@ if __name__ == '__main__':
     matrix = Matrix(1, 1)
     (js, queue) = joystick.queue('/dev/input/js0')
     js.daemon = True
+    js.start()
     app = News(matrix, queue)
     while True:
         if not app.run():
             if isinstance(app, News):
                 app = Tetris(matrix, 0, queue)
             else:
-                app = News(matrix)
+                app = News(matrix, queue)
         time.sleep(1 / 20)

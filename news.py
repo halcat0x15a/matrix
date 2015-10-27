@@ -41,10 +41,9 @@ class News:
         for news in [yahoo, niconico]:
             for entry in feedparser.parse(news)['entries']:
                 text = entry.title
-                print(text)
-                jtalk = threading.Thread(target=lambda: call(["./jsay_mac", text]))
-                jtalk.setDaemon(True)
-                jtalk.start()
+                #jtalk = threading.Thread(target=lambda: call(["./jsay_linux", text]))
+                #jtalk.setDaemon(True)
+                #jtalk.start()
                 for canvas in draw(self.matrix, text):
                     while not self.queue.empty():
                         pressed, button = self.queue.get()

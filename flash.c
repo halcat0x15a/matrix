@@ -44,6 +44,7 @@ int main() {
             }
             matrix->SwapOnVSync(canvas);
         }
+        image.release();
         usleep(1);
     }
     return 0;

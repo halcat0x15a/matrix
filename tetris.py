@@ -98,7 +98,7 @@ class Tetris:
         self.display = ((BLACK,) * self.width,) * self.height
         self.score = 0
         self.counter = 0
-        self.buttons = {'05':False,'07':False,'06':False,'0D':False,'0E':False}
+        self.buttons = {'00':False,'05':False,'07':False,'06':False,'0D':False,'0E':False}
 
     def run(self):
         if not self.current:
@@ -154,17 +154,12 @@ if __name__ == '__main__' and False:
         canvas = matrix.matrix.SwapOnVSync(canvas)
 
 if __name__ == '__main__':
+    matrix = Matrix(1, 1)
     (js, queue) = joystick.queue('/dev/input/js0')
     js.daemon = True
-    tetris = Tetris(0, queue)
     js.start()
-    matrix = Matrix(1, 1)
-    canvas = matrix.matrix.CreateFrameCanvas()
+    tetris = Tetris(matrix, 0, queue)
     playing = True
     while playing:
         time.sleep(1 / 20)
         playing = tetris.run()
-        print playing
-        tetris.show(matrix, canvas)
-        matrix.matrix.SwapOnVSync(canvas)
-        canvas = matrix.matrix.CreateFrameCanvas()
